@@ -1,0 +1,6 @@
+Username, Score
+Kiefer, 20
+Jovan, 17
+Lucas, 15
+Kris, 14
+Kai Yu, 13
