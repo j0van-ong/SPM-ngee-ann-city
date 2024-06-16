@@ -4,6 +4,7 @@ import random
 #Constant Variable for assigning mode
 ARCADE_MODE = 'arcade'
 FREE_PLAY_MODE = 'free_play'
+LETTERS_SET = ['R', 'I', 'C', 'O', '*']
 
 #Class for Gamestate object, used to initialize the attributes taken in. Self is used to refer to current object edited
 class GameState:
@@ -14,28 +15,28 @@ class GameState:
         self.score = 0
         self.turn = 1
 
-    ''' Function to print out grid size, will be called when play_game starts
-    def print_board(self):
-        size = len(self.board)
-        print('+' + '---+' * size)
-        for row in self.board:
-            for cell in row:
-                print('|', cell, end=' ')
-            if row == self.board[-1]:  #Check if it's the last row
-                print('|')  #Print the last '|' if it's the last row
+    def place_letter(self, coord, letter):
+        row, col = self.convert_coord(coord)
+        if row is not None and col is not None:
+            if self.board[row][col] == ' ':
+                self.board[row][col] = letter
+                return True
             else:
-                print('  |')
-            print('+' + '---+' * size)
-    '''
-    #Function to print out grid size, will be called when play_game starts
-    def print_board(self):
-        size = len(self.board)
-        print('+' + '---+' * size)
-        for row in self.board:
-            for cell in row:
-                print('|', cell, end=' ')
-            print('|')  # Always print the last '|'
-            print('+' + '---+' * size)
+                print("That cell is already occupied.")
+                return False
+        else:
+            print("Invalid coordinate.")
+            return False
+
+    def convert_coord(self, coord):
+        if len(coord) != 2:
+            return None, None
+        row = ord(coord[0].lower()) - ord('a')
+        col = int(coord[1]) - 1
+        if 0 <= row < len(self.board) and 0 <= col < len(self.board):
+            return row, col
+        else:
+            return None, None
                 
 def printMainMenu():
     print("----------------------------------\n"
@@ -43,7 +44,7 @@ def printMainMenu():
         "----------------------------------\n"
         "-  (1) Start New Arcade Game     -\n"
         "-  (2) Start New Free Play Game  -\n"
-        "-  (3) Load New Saved Game       -\n"
+        "-  (3) Load Saved Game       -\n"
         "-  (4) Display High Scores       -\n"
         "-  (0) Exit Game                 -\n"
         "----------------------------------")
@@ -52,13 +53,31 @@ def printMainMenu():
 
 def play_game(mode):
     game_state = start_new_game(mode)
-    
-    print("Turn:", game_state.turn)
-    print("Coins:", game_state.coins)
-    print("Score:", game_state.score)
-    print("Board:")
-    game_state.print_board()
-    coordinatesTest(game_state)
+    while True:
+        print("Turn:", game_state.turn)
+        print("Coins:", game_state.coins)
+        print("Score:", game_state.score)
+        print("Board:")
+        game_state.print_board()
+
+        letter_options = random.sample(LETTERS_SET, 2)
+        print(f"Choose a letter to place: {letter_options[0]} or {letter_options[1]}")
+        letter = None
+        while letter not in letter_options:
+            letter = input(f"Enter your choice ({letter_options[0]}/{letter_options[1]}): ").upper()
+            if letter not in letter_options:
+                print("Invalid choice. Please select one of the given options.")
+        coord = input("Enter the coordinate to place a letter (e.g., 'a1'): ")
+        if game_state.place_letter(coord, letter):
+            game_state.turn += 1
+        else:
+            print("Invalid move. Try again.")
+
+        # Print the updated board after each turn
+        print("Board:")
+        game_state.print_board()
+
+
 
 
 
