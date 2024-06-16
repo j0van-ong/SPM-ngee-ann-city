@@ -15,6 +15,16 @@ class GameState:
         self.score = 0
         self.turn = 1
 
+    #Function to print out grid size, will be called when play_game starts
+    def print_board(self):
+        size = len(self.board)
+        print('+' + '---+' * size)
+        for row in self.board:
+            for cell in row:
+                print('|', cell, end=' ')
+            print('|')
+            print('+' + '---+' * size)
+
     def place_letter(self, coord, letter):
         row, col = self.convert_coord(coord)
         if row is not None and col is not None:
@@ -87,13 +97,6 @@ def start_new_game(mode):
     elif mode == FREE_PLAY_MODE:
         return GameState(mode, board_size=5, coins=0)
     
-# TO TEST GRID COORDINATE PRINTING SYSTEM
-def coordinatesTest(game_state):
-    x = int(input("Row coordinate: "))
-    y = int(input("Column coordinate: "))
-    game_state.board[x][y] = "X"
-    game_state.print_board()
-
 
 '''Start of code main program'''
 while True:
@@ -117,6 +120,3 @@ while True:
         play_game(ARCADE_MODE)
     elif option == 2:
         play_game(FREE_PLAY_MODE)
-
-
-
