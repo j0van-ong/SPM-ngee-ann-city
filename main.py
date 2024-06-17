@@ -1,6 +1,6 @@
 
 import random
-
+import GameState as GS
 #Constant Variable for assigning mode
 ARCADE_MODE = 'arcade'
 FREE_PLAY_MODE = 'free_play'
@@ -122,8 +122,6 @@ def play_game(mode):
         coord = input("Enter the coordinate to place a letter (e.g., 'a1'): ")
         if game_state.place_letter(coord, letter):
             game_state.turn += 1
-            game_state.coins -=1
-            OLD = False
         else:
             print("Invalid move. Try again.")
             OLD = True
@@ -137,9 +135,9 @@ def play_game(mode):
 
 def start_new_game(mode):
     if mode == ARCADE_MODE:
-        return GameState(mode, board_size=20, coins=16)
+        return GS.GameState(mode, board_size=20, coins=16)
     elif mode == FREE_PLAY_MODE:
-        return GameState(mode, board_size=5, coins=0)
+        return GS.GameState(mode, board_size=5, coins=0)
     
 
 '''Start of code main program'''
@@ -164,4 +162,3 @@ while True:
         play_game(ARCADE_MODE)
     elif option == 2:
         play_game(FREE_PLAY_MODE)
-
