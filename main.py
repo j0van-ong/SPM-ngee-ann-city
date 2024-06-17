@@ -29,14 +29,53 @@ class GameState:
         row, col = self.convert_coord(coord)
         if row is not None and col is not None:
             if self.board[row][col] == ' ':
-                self.board[row][col] = letter
-                return True
+                if self.is_adjacent_to_letter(row, col) or self.turn == 1:  # Allow placing on first turn without adjacency check and logic of scores to be applied 
+                    self.board[row][col] = letter
+                    self.update_coins_and_scores(row,col,letter)
+                    return True
+                else:
+                    print("You can only place letters next to existing letters.")
+                    return False
             else:
                 print("That cell is already occupied.")
                 return False
         else:
             print("Invalid coordinate.")
             return False
+        
+    def update_coins_and_scores(self,row,col,letter):
+        adjacent_r_count = 0
+        adjacent_c_count = 0
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1,1), (1,1), (-1,-1), (1,-1)]  # Up, Down, Left, Right, Upper right, Bottom left, Upper left, Bottom Right 
+        for dr, dc in directions:
+            r, c = row + dr, col + dc
+            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ' and self.turn != 1: #For all turns other the first turn to have a adjacency check
+                if letter == "O" and self.board[r][c] == "O":
+                    self.score += 1
+                elif letter == "I":
+                    if self.board[r][c] == "R":
+                        adjacent_r_count += 1
+                elif letter == "C":
+                    if self.board[r][c] == "C":
+                        adjacent_c_count += 1
+                    if self.board[r][c] == "R":
+                        adjacent_r_count += 1
+        # Code for first turn scoring, only I is able to earn points on its own so only I code is needed
+        if letter == "I":
+            self.score += 1
+        if letter == "C" and adjacent_c_count>0:
+            self.score+=adjacent_c_count
+        if letter in ["I", "C"] and adjacent_r_count > 0:
+            self.coins += adjacent_r_count
+
+    def is_adjacent_to_letter(self, row, col):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+        for dr, dc in directions:
+            r, c = row + dr, col + dc #looks up, down, left, right by minusing or adding the rows and cols coordinates
+            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ':#checks if row and col coord is in grid and if there is letters around it
+                return True
+        return False
+
 
     def convert_coord(self, coord):
         if len(coord) != 2:
@@ -60,8 +99,8 @@ def printMainMenu():
         "----------------------------------")
     print()
 
-
 def play_game(mode):
+    OLD = False 
     game_state = start_new_game(mode)
     while True:
         print("Turn:", game_state.turn)
@@ -69,8 +108,11 @@ def play_game(mode):
         print("Score:", game_state.score)
         print("Board:")
         game_state.print_board()
-
-        letter_options = random.sample(LETTERS_SET, 2)
+        if OLD == False:
+            letter_options = random.sample(LETTERS_SET, 2)
+        old_options = letter_options
+        if OLD  == True:
+            letter_options = old_options
         print(f"Choose a letter to place: {letter_options[0]} or {letter_options[1]}")
         letter = None
         while letter not in letter_options:
@@ -80,12 +122,14 @@ def play_game(mode):
         coord = input("Enter the coordinate to place a letter (e.g., 'a1'): ")
         if game_state.place_letter(coord, letter):
             game_state.turn += 1
+            game_state.coins -=1
+            OLD = False
         else:
             print("Invalid move. Try again.")
+            OLD = True
+
 
         # Print the updated board after each turn
-        print("Board:")
-        game_state.print_board()
 
 
 
