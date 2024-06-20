@@ -46,7 +46,11 @@ class GameState:
     def update_coins_and_scores(self,row,col,letter):
         adjacent_r_count = 0
         adjacent_c_count = 0
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1,1), (1,1), (-1,-1), (1,-1)]  # Up, Down, Left, Right, Upper right, Bottom left, Upper left, Bottom Right 
+        adjacent_o_count = 0
+        next_i_count = 0
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1,1), (1,1), (-1,-1), (1,-1)]  # Up, Down, Left, Right, Upper right, Bottom left, Upper left, Bottom Right
+        next_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        # Scan every row and column
         for dr, dc in directions:
             r, c = row + dr, col + dc
             if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ' and self.turn != 1: #For all turns other the first turn to have a adjacency check
@@ -60,14 +64,34 @@ class GameState:
                         adjacent_c_count += 1
                     if self.board[r][c] == "R":
                         adjacent_r_count += 1
+                elif letter == "R":
+                    if self.board[r][c] == "R":
+                        adjacent_r_count += 1
+                    if self.board[r][c] == "C":
+                        adjacent_c_count += 1
+                    if self.board[r][c] == "O":
+                        adjacent_o_count += 1
+        # Directions that are next to each other
+        for dr, dc in next_directions:
+            r, c = row + dr, col + dc
+            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ':
+                if letter == "R" and self.board[r][c] == "I":
+                    next_i_count += 1
         # Code for first turn scoring, only I is able to earn points on its own so only I code is needed
         if letter == "I":
             self.score += 1
         if letter == "C" and adjacent_c_count>0:
-            self.score+=adjacent_c_count
+            self.score += adjacent_c_count
         if letter in ["I", "C"] and adjacent_r_count > 0:
             self.coins += adjacent_r_count
-
+        if letter == "R" and next_i_count > 0:
+            self.score += next_i_count
+        if letter == "R" and adjacent_r_count > 0:
+            self.score += adjacent_r_count
+        if letter == "R" and adjacent_c_count > 0:
+            self.score += adjacent_c_count
+        if letter == "R" and adjacent_o_count > 0:
+            self.score += 2 * (adjacent_o_count)
     def is_adjacent_to_letter(self, row, col):
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
         for dr, dc in directions:
