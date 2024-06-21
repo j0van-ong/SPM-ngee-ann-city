@@ -7,6 +7,7 @@ FREE_PLAY_MODE = 'free_play'
 LETTERS_SET = ['R', 'I', 'C', 'O', '*']
 
 
+                
 def printMainMenu():
     print("----------------------------------\n"
         "-       | Ngee Ann City |        -\n"
@@ -19,17 +20,27 @@ def printMainMenu():
         "----------------------------------")
     print()
 
-
 def play_game(mode):
+    OLD = False 
     game_state = start_new_game(mode)
     while True:
-        print("Turn:", game_state.turn)
-        print("Coins:", game_state.coins)
-        print("Score:", game_state.score)
-        print("Board:")
+        if mode == ARCADE_MODE:
+            print("Turn:", game_state.turn)
+            print("Coins:", game_state.coins)
+            print("Score:", game_state.score)
+            print("Board:")
+        elif mode == FREE_PLAY_MODE:
+            print("Turn:", game_state.turn)
+            print("Score:", game_state.score)
+            print("Profit:", game_state.profit)
+            print("Upkeep:", game_state.upkeep)
+        
         game_state.print_board()
-
-        letter_options = random.sample(LETTERS_SET, 2)
+        if OLD == False:
+            letter_options = random.sample(LETTERS_SET, 2)
+        old_options = letter_options
+        if OLD  == True:
+            letter_options = old_options
         print(f"Choose a letter to place: {letter_options[0]} or {letter_options[1]}")
         letter = None
         while letter not in letter_options:
@@ -41,11 +52,10 @@ def play_game(mode):
             game_state.turn += 1
         else:
             print("Invalid move. Try again.")
+            OLD = True
+
 
         # Print the updated board after each turn
-        print("Board:")
-        game_state.print_board()
-
 
 
 
