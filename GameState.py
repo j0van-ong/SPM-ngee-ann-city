@@ -35,7 +35,26 @@ class GameState:
         else:
             print("Invalid coordinate.")
             return False
-        
+
+    def demolish_building(self, coord):
+        row, col = self.convert_coord(coord)
+        if row is not None and col is not None:
+            if self.board[row][col] != ' ':
+                if self.coins >= 1:
+                    self.board[row][col] = ' '
+                    self.coins -= 1
+                    print(f"Building at {coord} demolished. You have {self.coins} coins left.")
+                    return True
+                else:
+                    print("Not enough coins to demolish the building.")
+                    return False
+            else:
+                print("No building to demolish at the given coordinate.")
+                return False
+        else:
+            print("Invalid coordinate.")
+            return False   
+     
     def update_coins_and_scores(self,row,col,letter):
         adjacent_r_count = 0
         adjacent_c_count = 0
