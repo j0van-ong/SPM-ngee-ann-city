@@ -1,8 +1,8 @@
 import Building
 
-class Park(Building):
+class Industry(Building):
      def __init__(self):
         super().__init__()
-        self.name = "Park"
+        self.name = "Industry"
         self.upkeep_cost = 1
-        self.profit = 0
+        self.profit = 2
