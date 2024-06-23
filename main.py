@@ -49,7 +49,12 @@ def play_game(mode):
                 print("Invalid choice. Please select one of the given options.")
         coord = input("Enter the coordinate to place a letter (e.g., 'a1'): ")
         if game_state.place_letter(coord, letter):
-            game_state.turn += 1
+            game_state.turn += 1 #increase the turn
+            if mode == ARCADE_MODE:
+                game_state.coins -= 1  # deduct one coin after placing a building
+                if game_state.coins <= 1:  # check if coins are more than 1
+                    print("Game Over! You ran out of coins.")
+                    break
         else:
             print("Invalid move. Try again.")
             OLD = True
