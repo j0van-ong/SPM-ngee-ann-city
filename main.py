@@ -7,6 +7,7 @@ FREE_PLAY_MODE = 'free_play'
 LETTERS_SET = ['R', 'I', 'C', 'O','*']
 
 
+
                 
 def printMainMenu():
     print("----------------------------------\n"
@@ -24,10 +25,17 @@ def play_game(mode):
     OLD = False 
     game_state = start_new_game(mode)
     while True:
-        print("Turn:", game_state.turn)
-        print("Coins:", game_state.coins)
-        print("Score:", game_state.score)
-        print("Board:")
+        if mode == ARCADE_MODE:
+            print("Turn:", game_state.turn)
+            print("Coins:", game_state.coins)
+            print("Score:", game_state.score)
+            print("Board:")
+        elif mode == FREE_PLAY_MODE:
+            print("Turn:", game_state.turn)
+            print("Score:", game_state.score)
+            print("Profit:", game_state.profit)
+            print("Upkeep:", game_state.upkeep)
+        
         game_state.print_board()
         if OLD == False:
             letter_options = random.sample(LETTERS_SET, 2)
@@ -42,14 +50,18 @@ def play_game(mode):
                 print("Invalid choice. Please select one of the given options.")
         coord = input("Enter the coordinate to place a letter (e.g., 'a1'): ")
         if game_state.place_letter(coord, letter):
-            game_state.turn += 1
+            game_state.turn += 1 #increase the turn
+            if mode == ARCADE_MODE:
+                game_state.coins -= 1  # deduct one coin after placing a building
+                if game_state.coins <= 1:  # check if coins are more than 1
+                    print("Game Over! You ran out of coins.")
+                    break
         else:
             print("Invalid move. Try again.")
             OLD = True
 
 
         # Print the updated board after each turn
-
 
 
 
