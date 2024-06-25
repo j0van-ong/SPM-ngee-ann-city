@@ -28,7 +28,7 @@ class GameState:
         row, col = self.convert_coord(coord)
         if row is not None and col is not None:
             if self.board[row][col] is None:
-                if self.is_adjacent_to_building(row, col) or self.turn == 1:
+                if self.mode == "free_play" or self.is_adjacent_to_building(row, col) or self.turn == 1:
                     self.board[row][col] = building
                     self.update_coins_and_scores(row, col, building)
                     return True
