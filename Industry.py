@@ -1,4 +1,4 @@
-import Building
+from Building import Building
 
 class Industry(Building):
      def __init__(self):
