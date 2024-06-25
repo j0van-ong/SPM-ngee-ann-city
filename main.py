@@ -42,11 +42,17 @@ def play_game(mode):
         if OLD  == True:
             letter_options = old_options
         print(f"Choose a letter to place: {letter_options[0]} or {letter_options[1]}")
+        print("Enter 'M' to return to the Main Menu.")
         letter = None
-        while letter not in letter_options:
+        while letter not in letter_options and letter != "M":
             letter = input(f"Enter your choice ({letter_options[0]}/{letter_options[1]}): ").upper()
-            if letter not in letter_options:
+            if letter not in letter_options and letter != "M":
                 print("Invalid choice. Please select one of the given options.")
+
+        if letter == "M":
+            print("Returning to the main menu.....")
+            break
+
         coord = input("Enter the coordinate to place a letter (e.g., 'a1'): ")
         if game_state.place_letter(coord, letter):
             game_state.turn += 1 #increase the turn
