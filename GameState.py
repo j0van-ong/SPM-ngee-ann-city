@@ -1,40 +1,39 @@
-class GameState: 
+from Commercial import Commercial
+from Road import Road
+from Industry import Industry
+from Residential import Residential
+from Park import Park
+
+class GameState:
     def __init__(self, mode, board_size, coins):
         self.mode = mode
-        self.board = [[' ' for _ in range(board_size)] for _ in range(board_size)]
+        self.board = [[None for _ in range(board_size)] for _ in range(board_size)]
         self.coins = coins
         self.score = 0
         self.turn = 1
         self.profit = 0
         self.upkeep = 0
 
-    #Function to print out grid size, will be called when play_game starts
     def print_board(self):
         size = len(self.board)
-        column_headers = '  '.join(f'{i+1:^{2}}' for i in range(size))#formats numbers in middle of cell width
+        column_headers = '  '.join(f'{i + 1:^{2}}' for i in range(size))
         print('     ' + column_headers)
         print('   +' + '---+' * size)
-
-        # Print each row with the row letter and cells
         for idx, row in enumerate(self.board):
             row_letter = chr(ord('A') + idx)
-            print(f'{row_letter:2} |' + '|'.join(f' {cell} ' for cell in row) + '|')
+            print(f'{row_letter:2} |' + '|'.join(f' {cell.__class__.__name__[0] if cell else " "} ' for cell in row) + '|')
             print('   +' + '---+' * size)
 
-
-
-
-
-    def place_letter(self, coord, letter):
+    def place_building(self, coord, building):
         row, col = self.convert_coord(coord)
         if row is not None and col is not None:
-            if self.board[row][col] == ' ':
-                if self.is_adjacent_to_letter(row, col) or self.turn == 1:  # Allow placing on first turn without adjacency check and logic of scores to be applied 
-                    self.board[row][col] = letter
-                    self.update_coins_and_scores(row,col,letter)
+            if self.board[row][col] is None:
+                if self.is_adjacent_to_building(row, col) or self.turn == 1:
+                    self.board[row][col] = building
+                    self.update_coins_and_scores(row, col, building)
                     return True
                 else:
-                    print("You can only place letters next to existing letters.")
+                    print("You can only place buildings next to existing buildings.")
                     return False
             else:
                 print("That cell is already occupied.")
@@ -46,9 +45,9 @@ class GameState:
     def demolish_building(self, coord):
         row, col = self.convert_coord(coord)
         if row is not None and col is not None:
-            if self.board[row][col] != ' ':
+            if self.board[row][col] is not None:
                 if self.coins >= 1:
-                    self.board[row][col] = ' '
+                    self.board[row][col] = None
                     self.coins -= 1
                     print(f"Building at {coord} demolished. You have {self.coins} coins left.")
                     return True
@@ -60,66 +59,54 @@ class GameState:
                 return False
         else:
             print("Invalid coordinate.")
-            return False   
-     
-    def update_coins_and_scores(self,row,col,letter):
-        adjacent_r_count = 0
-        adjacent_c_count = 0
-        adjacent_o_count = 0
-        next_i_count = 0
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1,1), (1,1), (-1,-1), (1,-1)]  # Up, Down, Left, Right, Upper right, Bottom left, Upper left, Bottom Right
-        next_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        # Scan every row and column
-        for dr, dc in directions:
-            r, c = row + dr, col + dc
-            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ' and self.turn != 1: #For all turns other the first turn to have a adjacency check
-                if letter == "O" and self.board[r][c] == "O":
-                    self.score += 1
-                elif letter == "I":
-                    if self.board[r][c] == "R":
-                        adjacent_r_count += 1
-                elif letter == "C":
-                    if self.board[r][c] == "C":
-                        adjacent_c_count += 1
-                    if self.board[r][c] == "R":
-                        adjacent_r_count += 1
-                elif letter == "R":
-                    if self.board[r][c] == "R":
-                        adjacent_r_count += 1
-                    if self.board[r][c] == "C":
-                        adjacent_c_count += 1
-                    if self.board[r][c] == "O":
-                        adjacent_o_count += 1
-        # Directions that are next to each other
-        for dr, dc in next_directions:
-            r, c = row + dr, col + dc
-            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ':
-                if letter == "R" and self.board[r][c] == "I":
-                    next_i_count += 1
-        # Code for first turn scoring, only I is able to earn points on its own so only I code is needed
-        if letter == "I":
-            self.score += 1
-        if letter == "C" and adjacent_c_count>0:
-            self.score += adjacent_c_count
-        if letter in ["I", "C"] and adjacent_r_count > 0:
-            self.coins += adjacent_r_count
-        if letter == "R" and next_i_count > 0:
-            self.score += next_i_count
-        if letter == "R" and adjacent_r_count > 0:
-            self.score += adjacent_r_count
-        if letter == "R" and adjacent_c_count > 0:
-            self.score += adjacent_c_count
-        if letter == "R" and adjacent_o_count > 0:
-            self.score += 2 * (adjacent_o_count)
+            return False
 
-    def is_adjacent_to_letter(self, row, col):
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+    def update_coins_and_scores(self, row, col, building):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        adjacent_buildings = [self.board[row + dr][col + dc] for dr, dc in directions if 0 <= row + dr < len(self.board) and 0 <= col + dc < len(self.board) and self.board[row + dr][col + dc] is not None]
+
+        if isinstance(building, Residential):
+            for adjacent in adjacent_buildings:
+                if isinstance(adjacent, Industry):
+                    self.score += 1
+                    return
+            for adjacent in adjacent_buildings:
+                if isinstance(adjacent, Residential):
+                    self.score += 1
+                elif isinstance(adjacent, Commercial):
+                    self.score += 1
+                elif isinstance(adjacent, Park):
+                    self.score += 2
+
+        elif isinstance(building, Industry):
+            self.score += 1
+            for adjacent in adjacent_buildings:
+                if isinstance(adjacent, Residential):
+                    self.coins += 1
+
+        elif isinstance(building, Commercial):
+            adjacent_commercials = sum(1 for adjacent in adjacent_buildings if isinstance(adjacent, Commercial))
+            self.score += adjacent_commercials
+            for adjacent in adjacent_buildings:
+                if isinstance(adjacent, Residential):
+                    self.coins += 1
+
+        elif isinstance(building, Park):
+            adjacent_parks = sum(1 for adjacent in adjacent_buildings if isinstance(adjacent, Park))
+            self.score += adjacent_parks
+
+        elif isinstance(building, Road):
+            connected_roads = sum(1 for i in range(len(self.board)) if isinstance(self.board[row][i], Road))
+            self.score += connected_roads
+
+    def is_adjacent_to_building(self, row, col):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         for dr, dc in directions:
-            r, c = row + dr, col + dc #looks up, down, left, right by minusing or adding the rows and cols coordinates
-            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] != ' ':#checks if row and col coord is in grid and if there is letters around it
+            r, c = row + dr, col + dc
+            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and self.board[r][c] is not None:
                 return True
         return False
-    
+
     def convert_coord(self, coord):
         if len(coord) != 2:
             return None, None
@@ -129,3 +116,71 @@ class GameState:
             return row, col
         else:
             return None, None
+
+    def calculate_profit_and_upkeep(self):
+        residential_clusters = []
+        commercial_count = 0
+        industry_count = 0
+        park_count = 0
+        road_segments = []
+
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
+                if isinstance(self.board[row][col], Residential):
+                    in_cluster = False
+                    for cluster in residential_clusters:
+                        if self.is_adjacent_to_cluster(row, col, cluster):
+                            cluster.append((row, col))
+                            in_cluster = True
+                            break
+                    if not in_cluster:
+                        residential_clusters.append([(row, col)])
+                elif isinstance(self.board[row][col], Commercial):
+                    commercial_count += 1
+                elif isinstance(self.board[row][col], Industry):
+                    industry_count += 1
+                elif isinstance(self.board[row][col], Park):
+                    park_count += 1
+                elif isinstance(self.board[row][col], Road):
+                    if not self.is_connected_road(row, col):
+                        road_segments.append((row, col))
+
+        residential_upkeep = len([cluster for cluster in residential_clusters if len(cluster) > 1])
+        commercial_upkeep = 2 * commercial_count
+        industry_upkeep = 1 * industry_count
+        park_upkeep = 1 * park_count
+        road_upkeep = 1 * len(road_segments)
+
+        residential_profit = sum([len(cluster) for cluster in residential_clusters])
+        commercial_profit = 3 * commercial_count
+        industry_profit = 2 * industry_count
+
+        self.profit = residential_profit + commercial_profit + industry_profit
+        self.upkeep = residential_upkeep + commercial_upkeep + industry_upkeep + park_upkeep + road_upkeep
+
+    def is_adjacent_to_cluster(self, row, col, cluster):
+        for r, c in cluster:
+            if abs(row - r) + abs(col - c) == 1:
+                return True
+        return False
+
+    def is_connected_road(self, row, col):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for dr, dc in directions:
+            r, c = row + dr, col + dc
+            if 0 <= r < len(self.board) and 0 <= c < len(self.board) and isinstance(self.board[r][c], Road):
+                return True
+        return False
+
+    def end_turn(self):
+        self.calculate_profit_and_upkeep()
+        self.coins += self.profit - self.upkeep
+        print(f"Profit: {self.profit}. Upkeep: {self.upkeep}\n")
+        print(f"Turn {self.turn} ended. Coins: {self.coins}, Score: {self.score}\n")
+
+        if self.coins < 0:
+            print("You have run out of coins. Game over!")
+            return False
+        else:
+            self.turn += 1
+            return True

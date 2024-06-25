@@ -1,4 +1,4 @@
-import Building
+from Building import Building
 
 class Residential(Building):
      def __init__(self):
