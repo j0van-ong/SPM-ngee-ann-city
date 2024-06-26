@@ -108,10 +108,8 @@ class GameState:
         return False
 
     def convert_coord(self, coord):
-        if len(coord) != 2:
-            return None, None
         row = ord(coord[0].lower()) - ord('a')
-        col = int(coord[1]) - 1
+        col = int(coord[1:]) - 1  # Change this line to handle multi-digit columns
         if 0 <= row < len(self.board) and 0 <= col < len(self.board):
             return row, col
         else:
