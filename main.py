@@ -41,6 +41,31 @@ def play_game(mode):
             print("Upkeep:", game_state.upkeep)
 
         game_state.print_board()
+
+        if game_state.turn == 1 or not any(any(cell for cell in row) for row in game_state.board):
+            can_demolish = False
+        else:
+            can_demolish = True
+
+        if can_demolish:
+            action = input("Choose an action: (P)lace a building, (D)emolish a building: ").upper()
+            while action not in ['P', 'D']:
+                print("Invalid choice. Please select either 'P' to place a building or 'D' to demolish a building.")
+                action = input("Choose an action: (P)lace a building, (D)emolish a building: ").upper()
+        else:
+            action = 'P'
+
+        if action == 'D':
+            coord = input("Enter the coordinate to demolish a building (e.g., 'a1'): ")
+            if game_state.demolish_building(coord):
+                game_state.end_turn()
+                continue
+            else:
+                print("Invalid move. Try again.")
+                OLD = True
+                continue
+
+
         if not OLD:
             letter_options = random.sample(LETTERS_SET, 2)
         old_options = letter_options
