@@ -47,13 +47,27 @@ def play_game(mode):
         else:
             can_demolish = True
 
+        print("\nChoose an action: ")
+        print("  (P)lace a building")
         if can_demolish:
-            action = input("Choose an action: (P)lace a building, (D)emolish a building: ").upper()
-            while action not in ['P', 'D']:
-                print("Invalid choice. Please select either 'P' to place a building or 'D' to demolish a building.")
-                action = input("Choose an action: (P)lace a building, (D)emolish a building: ").upper()
-        else:
-            action = 'P'
+            print("  (D)emolish a building: ")
+        print("  (S)ave game")
+        print("  (E)xit game")
+
+        action = input("Your choice: ").upper()
+
+        while action not in ['P', 'D', 'S', 'E'] or (action == 'D' and not can_demolish):
+            print("Invalid choice. Please select valid option.")
+            action = input("Your choice: ").upper()
+
+        if action == 'E':
+            print("Exiting the game...")
+            break
+
+        if action == 'S':
+            #Add save game method
+            print("Game saved.")
+            break
 
         if action == 'D':
             coord = input("Enter the coordinate to demolish a building (e.g., 'a1'): ")
@@ -86,6 +100,7 @@ def play_game(mode):
                 game_state.coins -= 1  # deduct one coin after placing a building
                 if game_state.coins <= 1:  # check if coins are more than 1
                     print("Game Over! You ran out of coins.")
+                    print("\nFinal Score:", game_state.score)
                     break
         else:
             print("Invalid move. Try again.")
