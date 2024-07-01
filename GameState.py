@@ -62,12 +62,14 @@ class GameState:
             return False
 
     def update_coins_and_scores(self, row, col, building):
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        adjacent_buildings = [self.board[row + dr][col + dc] for dr, dc in directions if 0 <= row + dr < len(self.board) and 0 <= col + dc < len(self.board) and self.board[row + dr][col + dc] is not None]
-
+        next_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        next_buildings = [self.board[row + dr][col + dc] for dr, dc in next_directions if 0 <= row + dr < len(self.board) and 0 <= col + dc < len(self.board) and self.board[row + dr][col + dc] is not None]
+        adjacent_directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+        adjacent_buildings = [self.board[row + dr][col + dc] for dr, dc in adjacent_directions if 0 <= row + dr < len(self.board) and 0 <= col + dc < len(self.board) and self.board[row + dr][col + dc] is not None]
+        
         if isinstance(building, Residential):
-            for adjacent in adjacent_buildings:
-                if isinstance(adjacent, Industry):
+            for next in next_buildings:
+                if isinstance(next, Industry):
                     self.score += 1
                     return
             for adjacent in adjacent_buildings:
