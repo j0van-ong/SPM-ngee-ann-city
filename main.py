@@ -28,6 +28,8 @@ def printMainMenu():
 def play_game(mode):
     OLD = False
     game_state = start_new_game(mode)
+    letter_options = []
+
     while True:
         if mode == ARCADE_MODE:
             print("Turn:", game_state.turn)
@@ -80,15 +82,15 @@ def play_game(mode):
                 continue
 
 
-        if not OLD:
+        if mode == FREE_PLAY_MODE:
+            letter_options = LETTERS_SET
+        elif not OLD:
             letter_options = random.sample(LETTERS_SET, 2)
-        old_options = letter_options
-        if OLD:
-            letter_options = old_options
-        print(f"Choose a letter to place: {letter_options[0]} or {letter_options[1]}")
+
+        print(f"Choose a building to place: {' or '.join(letter_options)}")
         letter = None
         while letter not in letter_options:
-            letter = input(f"Enter your choice ({letter_options[0]}/{letter_options[1]}): ").upper()
+            letter = input(f"Enter your choice ({'/'.join(letter_options)}): ").upper()
             if letter not in letter_options:
                 print("Invalid choice. Please select one of the given options.")
         
